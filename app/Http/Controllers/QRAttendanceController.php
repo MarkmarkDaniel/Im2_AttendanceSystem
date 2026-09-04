@@ -224,7 +224,8 @@ class QRAttendanceController extends Controller
     }
 
     /**
-     * Accepts either a bare token or a full scan URL.
+     * Accepts either a bare token or a full scan URL. Tokens are generated
+     * uppercase-only, so a hand-typed code is normalised the same way.
      */
     private function extractToken(string $raw): string
     {
@@ -233,10 +234,10 @@ class QRAttendanceController extends Controller
         if (str_contains($raw, '/')) {
             $path = parse_url($raw, PHP_URL_PATH) ?? $raw;
 
-            return basename(rtrim($path, '/'));
+            return strtoupper(basename(rtrim($path, '/')));
         }
 
-        return $raw;
+        return strtoupper($raw);
     }
 
     /**

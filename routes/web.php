@@ -16,6 +16,7 @@ use App\Http\Controllers\InstructorClassController;
 use App\Http\Controllers\InstructorDashboardController;
 use App\Http\Controllers\QRAttendanceController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\StudentPortalController;
@@ -46,7 +47,22 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/register',  [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.store');
+
+    Route::get('/forgot-password',  [PasswordResetController::class, 'showRequestForm'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Change password link (open to guests AND logged-in users)
+|--------------------------------------------------------------------------
+| These must sit outside the "guest" group. A student who asks for the link
+| from the menu is still logged in when the emailed button opens this page,
+| and "guest" would bounce them straight to the dashboard.
+*/
+
+Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
 
 
 /*
@@ -189,5 +205,9 @@ Route::middleware('auth')->group(function () {
     // Profile
     Route::get('/profile',           [ProfileController::class, 'show'])->name('profile.show');
     Route::patch('/profile/password',[ProfileController::class, 'updatePassword'])->name('profile.password');
+
+    // Students and instructors change their password through an emailed link
+    Route::post('/profile/change-password-link', [PasswordResetController::class, 'sendLinkToSelf'])
+        ->name('password.email.self');
 
 });

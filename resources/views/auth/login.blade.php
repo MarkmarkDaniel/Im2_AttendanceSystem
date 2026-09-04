@@ -27,7 +27,10 @@
         </div>
 
         <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
+            <div class="d-flex justify-content-between">
+                <label for="password" class="form-label">Password</label>
+                <a href="{{ route('password.request') }}" class="small text-decoration-none">Forgot password?</a>
+            </div>
             <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
                 <input type="password"

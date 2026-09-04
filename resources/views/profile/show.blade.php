@@ -133,9 +133,39 @@
             </div>
         @endif
 
-        <div class="card">
+        <div class="card" id="change-password">
             <div class="card-header bg-white fw-medium">Change Password</div>
             <div class="card-body">
+
+                @if (! $user->isAdmin())
+
+                    {{-- Students and instructors change their password through a
+                         one-time link sent to the email on their account. --}}
+                    <p class="small text-muted">
+                        For your security, your password is changed through a link sent
+                        to your registered email address:
+                    </p>
+                    <p class="small fw-medium mb-3">
+                        <i class="bi bi-envelope me-1"></i>{{ $user->email }}
+                    </p>
+
+                    <form method="POST" action="{{ route('password.email.self') }}"
+                          data-confirm="A change password link will be sent to {{ $user->email }}. The link is valid for 1 hour and can only be used once."
+                          data-confirm-title="Change Password"
+                          data-confirm-style="btn-brand">
+                        @csrf
+                        <button type="submit" class="btn btn-brand btn-sm w-100">
+                            <i class="bi bi-send me-1"></i>Send Change Password Link
+                        </button>
+                    </form>
+
+                    <div class="form-text mt-2">
+                        The link expires in 1 hour and stops working once your password
+                        has been changed.
+                    </div>
+
+                @else
+
                 <form method="POST" action="{{ route('profile.password') }}" novalidate>
                     @csrf
                     @method('PATCH')
@@ -173,6 +203,9 @@
                         <i class="bi bi-shield-lock me-1"></i>Update Password
                     </button>
                 </form>
+
+                @endif
+
             </div>
         </div>
 

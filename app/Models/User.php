@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Mail\PasswordResetMail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Mail;
 
 class User extends Authenticatable
 {
@@ -91,5 +93,23 @@ class User extends Authenticatable
             self::ROLE_INSTRUCTOR => 'instructor.dashboard',
             default               => 'student.dashboard',
         };
+    }
+
+    /**
+     * Sends the branded "Change Password" email instead of Laravel's
+     * default plain-text notification.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $resetUrl = route('password.reset', [
+            'token' => $token,
+            'email' => $this->email,
+        ]);
+
+        $expiresAt = now()
+            ->addMinutes((int) config('auth.passwords.users.expire', 60))
+            ->format('F j, Y \a\t g:i A');
+
+        Mail::to($this->email)->send(new PasswordResetMail($this, $resetUrl, $expiresAt));
     }
 }

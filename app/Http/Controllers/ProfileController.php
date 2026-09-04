@@ -49,9 +49,19 @@ class ProfileController extends Controller
 
     /**
      * Change own password. Requires the current password.
+     *
+     * Admins only. Students and instructors change their password through
+     * the one-time link emailed by PasswordResetController::sendLinkToSelf().
      */
     public function updatePassword(Request $request): RedirectResponse
     {
+        if (! $request->user()->isAdmin()) {
+            return redirect()->route('profile.show')->with(
+                'error',
+                'Your password is changed through the link sent to your registered email address.'
+            );
+        }
+
         $validated = $request->validate([
             'current_password' => ['required', 'string'],
             'password'         => ['required', 'confirmed', Password::min(8)->letters()->numbers()],

@@ -101,6 +101,25 @@
                         @endif
                     </a>
                 </li>
+                <li>
+                    @if ($user->isAdmin())
+                        {{-- Admins still change their own password with their current one --}}
+                        <a class="dropdown-item" href="{{ route('profile.show') }}#change-password">
+                            <i class="bi bi-shield-lock me-2"></i>Change Password
+                        </a>
+                    @else
+                        {{-- Students and instructors get a one-time link by email --}}
+                        <form method="POST" action="{{ route('password.email.self') }}" class="mb-0"
+                              data-confirm="A change password link will be sent to {{ $user->email }}. The link is valid for 1 hour and can only be used once."
+                              data-confirm-title="Change Password"
+                              data-confirm-style="btn-brand">
+                            @csrf
+                            <button type="submit" class="dropdown-item">
+                                <i class="bi bi-shield-lock me-2"></i>Change Password
+                            </button>
+                        </form>
+                    @endif
+                </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
                     <form method="POST" action="{{ route('logout') }}">
