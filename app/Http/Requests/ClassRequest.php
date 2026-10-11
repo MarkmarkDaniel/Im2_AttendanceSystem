@@ -27,7 +27,12 @@ class ClassRequest extends FormRequest
                     ->ignore($classId),
             ],
 
-            'instructor_id' => ['required', 'integer', 'exists:instructors,id'],
+            'instructor_id' => [
+                'required', 'integer',
+                // The subject must be assigned to the instructor first
+                Rule::exists('instructor_subject', 'instructor_id')
+                    ->where('subject_id', $this->input('subject_id')),
+            ],
 
             'school_year' => ['required', 'string', 'max:20'],
 
@@ -55,8 +60,9 @@ class ClassRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'subject_id.unique' => 'That subject already has a class for this section, school year, and semester.',
-            'end_time.after'    => 'The end time must be later than the start time.',
+            'subject_id.unique'    => 'That subject already has a class for this section, school year, and semester.',
+            'instructor_id.exists' => 'That instructor is not assigned to the selected subject. Assign it from the Instructors page first.',
+            'end_time.after'       => 'The end time must be later than the start time.',
         ];
     }
 

@@ -57,6 +57,7 @@
                     <th>Employee No.</th>
                     <th>Name</th>
                     <th>Department</th>
+                    <th class="text-center">Subjects</th>
                     <th class="text-center">Classes</th>
                     <th>Status</th>
                     <th class="text-end no-print">Actions</th>
@@ -71,6 +72,12 @@
                             <div class="text-muted" style="font-size: .78rem;">{{ $instructor->email }}</div>
                         </td>
                         <td class="small">{{ $instructor->department->department_code }}</td>
+                        <td class="text-center">
+                            <a href="{{ route('admin.instructors.subjects', $instructor) }}"
+                               class="badge bg-primary text-decoration-none">
+                                {{ $instructor->subjects_count }}
+                            </a>
+                        </td>
                         <td class="text-center">{{ $instructor->classes_count }}</td>
                         <td>
                             <span class="badge bg-{{ $instructor->status === 'Active' ? 'success' : 'secondary' }}">
@@ -78,6 +85,10 @@
                             </span>
                         </td>
                         <td class="text-end no-print">
+                            <a href="{{ route('admin.instructors.subjects', $instructor) }}"
+                               class="btn btn-sm btn-outline-secondary" title="Assign subjects">
+                                <i class="bi bi-journal-bookmark"></i>
+                            </a>
                             <a href="{{ route('admin.instructors.edit', $instructor) }}"
                                class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-pencil"></i>
@@ -95,7 +106,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">
+                        <td colspan="7" class="text-center text-muted py-4">
                             <i class="bi bi-inbox d-block fs-3 mb-2"></i>No instructors found.
                         </td>
                     </tr>

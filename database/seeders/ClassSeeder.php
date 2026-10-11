@@ -25,6 +25,11 @@ class ClassSeeder extends Seeder
         ];
 
         foreach ($classes as [$subjectCode, $employeeNumber, $section, $room, $day, $start, $end, $schoolYear, $semester]) {
+            // An instructor can only teach a subject that is assigned to them
+            Instructor::find($instructors[$employeeNumber])
+                ->subjects()
+                ->syncWithoutDetaching([$subjects[$subjectCode]]);
+
             ClassModel::updateOrCreate(
                 [
                     'subject_id'  => $subjects[$subjectCode],

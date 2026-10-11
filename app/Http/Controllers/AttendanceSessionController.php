@@ -15,9 +15,6 @@ class AttendanceSessionController extends Controller
     {
     }
 
-    /**
-     * Start (or reopen) an attendance session for a class.
-     */
     public function open(Request $request, ClassModel $class): RedirectResponse
     {
         abort_unless($class->belongsToInstructor($request->user()), 403,

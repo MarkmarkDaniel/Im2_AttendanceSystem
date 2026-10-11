@@ -6,6 +6,7 @@ use App\Http\Controllers\ClassController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\InstructorController;
+use App\Http\Controllers\InstructorSubjectController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
 use Illuminate\Support\Facades\Auth;
@@ -82,6 +83,11 @@ Route::middleware(['auth', 'role:admin'])
         Route::resource('students',    StudentController::class)->except('show');
         Route::resource('instructors', InstructorController::class)->except('show');
         Route::resource('classes',     ClassController::class)->except('show');
+
+        // Instructor subject assignment (many-to-many)
+        Route::get('instructors/{instructor}/subjects',              [InstructorSubjectController::class, 'manage'])->name('instructors.subjects');
+        Route::post('instructors/{instructor}/subjects',             [InstructorSubjectController::class, 'store'])->name('instructors.subjects.store');
+        Route::delete('instructors/{instructor}/subjects/{subject}', [InstructorSubjectController::class, 'destroy'])->name('instructors.subjects.destroy');
 
         // Enrollment management (many-to-many)
         Route::get('enrollments',                  [EnrollmentController::class, 'index'])->name('enrollments.index');

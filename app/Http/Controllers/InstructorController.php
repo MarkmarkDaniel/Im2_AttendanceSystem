@@ -25,7 +25,7 @@ class InstructorController extends Controller
             ->search($search)
             ->when($departmentId, fn ($q, $v) => $q->where('department_id', $v))
             ->when($status, fn ($q, $v) => $q->where('status', $v))
-            ->withCount('classes')
+            ->withCount(['classes', 'subjects'])
             ->orderBy('last_name')
             ->paginate(10)
             ->withQueryString();

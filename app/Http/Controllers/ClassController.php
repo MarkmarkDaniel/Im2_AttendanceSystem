@@ -95,7 +95,7 @@ class ClassController extends Controller
     {
         return [
             'subjects'    => Subject::orderBy('subject_code')->get(),
-            'instructors' => Instructor::where('status', 'Active')->orderBy('last_name')->get(),
+            'instructors' => Instructor::with('subjects:id')->where('status', 'Active')->orderBy('last_name')->get(),
             'days'        => ['Monday', 'Tuesday', 'Wednesday', 'Thursday',
                               'Friday', 'Saturday', 'Sunday'],
             'semesters'   => ['1st Semester', '2nd Semester', 'Summer'],

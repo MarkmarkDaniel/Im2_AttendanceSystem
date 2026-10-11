@@ -7,7 +7,7 @@
             <option value="">-- Select Subject --</option>
             @foreach ($subjects as $subject)
                 <option value="{{ $subject->id }}"
-                    {{ old('subject_id', $class->subject_id ?? '') == $subject->id ? 'selected' : '' }}>
+                    {{ old('subject_id', $class->subject_id ?? request('subject_id')) == $subject->id ? 'selected' : '' }}>
                     {{ $subject->subject_code }} &mdash; {{ $subject->subject_name }}
                 </option>
             @endforeach
@@ -22,12 +22,17 @@
             <option value="">-- Select Instructor --</option>
             @foreach ($instructors as $instructor)
                 <option value="{{ $instructor->id }}"
-                    {{ old('instructor_id', $class->instructor_id ?? '') == $instructor->id ? 'selected' : '' }}>
+                    data-subjects="{{ $instructor->subjects->pluck('id')->implode(',') }}"
+                    {{ old('instructor_id', $class->instructor_id ?? request('instructor_id')) == $instructor->id ? 'selected' : '' }}>
                     {{ $instructor->full_name }} ({{ $instructor->employee_number }})
                 </option>
             @endforeach
         </select>
         @error('instructor_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+        <div class="form-text">
+            Only instructors assigned to the selected subject are listed.
+            <a href="{{ route('admin.instructors.index') }}">Assign subjects</a>
+        </div>
     </div>
 
     <div class="col-md-4">
@@ -132,3 +137,32 @@
     </div>
 
 </div>
+
+@push('scripts')
+<script>
+    // Only list the instructors assigned to the selected subject
+    (function () {
+        const subjectSelect    = document.getElementById('subject_id');
+        const instructorSelect = document.getElementById('instructor_id');
+
+        function filterInstructors() {
+            const subjectId = subjectSelect.value;
+
+            instructorSelect.querySelectorAll('option[data-subjects]').forEach(option => {
+                const assigned = !subjectId
+                    || option.dataset.subjects.split(',').includes(subjectId);
+
+                option.hidden   = !assigned;
+                option.disabled = !assigned;
+
+                if (!assigned && option.selected) {
+                    instructorSelect.value = '';
+                }
+            });
+        }
+
+        subjectSelect.addEventListener('change', filterInstructors);
+        filterInstructors();
+    })();
+</script>
+@endpush
