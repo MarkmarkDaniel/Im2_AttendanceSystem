@@ -21,7 +21,7 @@ class InstructorController extends Controller
         $status       = $request->query('status');
 
         $instructors = Instructor::query()
-            ->with('department')
+            ->with(['department', 'user'])
             ->search($search)
             ->when($departmentId, fn ($q, $v) => $q->where('department_id', $v))
             ->when($status, fn ($q, $v) => $q->where('status', $v))
@@ -110,6 +110,13 @@ class InstructorController extends Controller
                 'status'          => $data['status'],
             ]);
         });
+
+        // A new upload wins over the "remove" tick box
+        if ($request->hasFile('profile_image')) {
+            $instructor->user->storeProfileImage($request->file('profile_image'));
+        } elseif ($request->boolean('remove_profile_image')) {
+            $instructor->user->removeProfileImage();
+        }
 
         return redirect()->route('admin.instructors.index')
             ->with('success', 'Instructor "' . $instructor->employee_number . '" was updated.');

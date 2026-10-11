@@ -397,13 +397,21 @@ class AttendanceService
 
     /**
      * Secure random token for the QR code. Contains no personal data.
+     *
+     * Uses uppercase letters and digits only, excluding characters that
+     * are easily confused when typed by hand (0/O, 1/I) -- students have
+     * to key this in manually before the code rotates.
      */
     public function generateToken(): string
     {
-        $length = (int) config('attendance.qr_token_length', 40);
+        $length  = (int) config('attendance.qr_token_length', 5);
+        $charset = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
         do {
-            $token = Str::random($length);
+            $token = '';
+            for ($i = 0; $i < $length; $i++) {
+                $token .= $charset[random_int(0, strlen($charset) - 1)];
+            }
         } while (AttendanceSession::where('qr_token', $token)->exists());
 
         return $token;

@@ -39,8 +39,8 @@
                 </p>
 
                 <div class="input-group">
-                    <input type="text" class="form-control" id="manualToken"
-                           placeholder="Paste the attendance code or link">
+                    <input type="text" class="form-control text-uppercase" id="manualToken"
+                           placeholder="5-character code" maxlength="5" style="letter-spacing: 2px;">
                     <button class="btn btn-secondary" type="button" id="manualBtn">Submit</button>
                 </div>
 

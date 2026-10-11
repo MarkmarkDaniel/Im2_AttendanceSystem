@@ -44,6 +44,11 @@
         @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
 
+    {{-- The photo is added once the student exists --}}
+    @isset($student)
+        @include('partials.profile-photo-field', ['photoUser' => $student->user])
+    @endisset
+
     <div class="col-12 mt-4">
         <h2 class="h6 text-uppercase text-muted mb-0">Academic Information</h2>
     </div>
@@ -99,7 +104,7 @@
         <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
         <select class="form-select @error('status') is-invalid @enderror"
                 id="status" name="status" required>
-            @foreach (['Active', 'Inactive', 'Dropped'] as $state)
+            @foreach (\App\Models\Student::STATUSES as $state)
                 <option value="{{ $state }}"
                     {{ old('status', $student->status ?? 'Active') === $state ? 'selected' : '' }}>
                     {{ $state }}

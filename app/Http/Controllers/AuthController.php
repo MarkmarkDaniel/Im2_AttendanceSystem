@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
-use App\Models\Department;
+use App\Models\MasterlistEntry;
 use App\Models\Notification;
 use App\Models\Student;
 use App\Models\User;
@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class AuthController extends Controller
@@ -36,16 +37,9 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        // Block students whose record is no longer active
-        if ($user->isStudent() && $user->student && $user->student->status !== 'Active') {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            return back()
-                ->withInput($request->only('email'))
-                ->with('error', 'Your student record is not active. Please contact the registrar.');
-        }
+        // Students whose record is not Active are still let in. The
+        // RestrictInactiveStudent middleware then keeps them on their
+        // dashboard, behind a pop-up that explains their status.
 
         // Block instructors who are marked inactive
         if ($user->isInstructor() && $user->instructor && $user->instructor->status !== 'Active') {
@@ -69,11 +63,15 @@ class AuthController extends Controller
 
     public function showRegister(): View
     {
-        return view('auth.register', [
-            'departments' => Department::orderBy('department_name')->get(),
-        ]);
+        return view('auth.register');
     }
 
+    /**
+     * Self-registration. Only a student on the admin's masterlist can create
+     * an account, and only by proving the student number is theirs (last name
+     * and birth date). Name, department, year level and section are copied
+     * from the masterlist, never taken from the form.
+     */
     public function register(RegisterRequest $request): RedirectResponse
     {
         $data = $request->validated();
@@ -82,8 +80,29 @@ class AuthController extends Controller
         // Without this you could end up with a user account and no student row.
         DB::transaction(function () use ($data) {
 
+            // Locked so two people cannot claim the same student number at once
+            $entry = MasterlistEntry::where('student_number', trim($data['student_number']))
+                ->lockForUpdate()
+                ->first();
+
+            // One message for "not on the list" and "details do not match",
+            // so nobody can use this form to find out which numbers exist.
+            if (! $entry || ! $entry->matchesIdentity($data['last_name'], $data['birth_date'])) {
+                throw ValidationException::withMessages([
+                    'student_number' => 'The student number, last name and birth date do not match our records. '
+                        . 'Check your details or contact the administrator.',
+                ]);
+            }
+
+            if ($entry->account()->exists()) {
+                throw ValidationException::withMessages([
+                    'student_number' => 'This student number already has an account. '
+                        . 'If this was not you, contact the administrator.',
+                ]);
+            }
+
             $user = User::create([
-                'name'     => trim($data['first_name'] . ' ' . $data['last_name']),
+                'name'     => trim($entry->first_name . ' ' . $entry->last_name),
                 'email'    => $data['email'],
                 'password' => Hash::make($data['password']),
                 'role'     => User::ROLE_STUDENT,
@@ -91,15 +110,15 @@ class AuthController extends Controller
 
             Student::create([
                 'user_id'        => $user->id,
-                'student_number' => $data['student_number'],
-                'first_name'     => $data['first_name'],
-                'middle_name'    => $data['middle_name'] ?? null,
-                'last_name'      => $data['last_name'],
+                'student_number' => $entry->student_number,
+                'first_name'     => $entry->first_name,
+                'middle_name'    => $entry->middle_name,
+                'last_name'      => $entry->last_name,
                 'email'          => $data['email'],
                 'phone'          => $data['phone'] ?? null,
-                'department_id'  => $data['department_id'],
-                'year_level'     => $data['year_level'],
-                'section'        => $data['section'],
+                'department_id'  => $entry->department_id,
+                'year_level'     => $entry->year_level,
+                'section'        => $entry->section,
                 'status'         => 'Active',
             ]);
 
@@ -118,7 +137,7 @@ class AuthController extends Controller
                 Notification::send(
                     $admin->id,
                     'New Student Registration',
-                    $user->name . ' (' . $data['student_number'] . ') completed registration.',
+                    $user->name . ' (' . $entry->student_number . ') completed registration.',
                     'info'
                 );
             }

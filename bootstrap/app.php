@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
 
+        // Students who are not Active can log in but only see their status notice
+        $middleware->web(append: [
+            \App\Http\Middleware\RestrictInactiveStudent::class,
+        ]);
+
         // Where guests are sent when they hit a protected page
         $middleware->redirectGuestsTo('/login');
 

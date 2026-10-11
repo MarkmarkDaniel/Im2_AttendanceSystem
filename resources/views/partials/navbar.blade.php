@@ -79,7 +79,12 @@
         {{-- ==================== USER MENU ==================== --}}
         <div class="dropdown">
             <button class="btn btn-sm btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown">
-                <i class="bi bi-person-circle fs-6"></i>
+                @if ($user->profileImageUrl())
+                    <img src="{{ $user->profileImageUrl() }}" alt="" class="rounded-circle"
+                         style="width: 22px; height: 22px; object-fit: cover;">
+                @else
+                    <i class="bi bi-person-circle fs-6"></i>
+                @endif
                 <span class="small d-none d-sm-inline">{{ $user->name }}</span>
                 <i class="bi bi-chevron-down small"></i>
             </button>
@@ -100,6 +105,25 @@
                             <span class="badge bg-danger ms-1">{{ $unread }}</span>
                         @endif
                     </a>
+                </li>
+                <li>
+                    @if ($user->isAdmin())
+                        {{-- Admins still change their own password with their current one --}}
+                        <a class="dropdown-item" href="{{ route('profile.show') }}#change-password">
+                            <i class="bi bi-shield-lock me-2"></i>Change Password
+                        </a>
+                    @else
+                        {{-- Students and instructors get a one-time link by email --}}
+                        <form method="POST" action="{{ route('password.email.self') }}" class="mb-0"
+                              data-confirm="A change password link will be sent to {{ $user->email }}. The link is valid for 1 hour and can only be used once."
+                              data-confirm-title="Change Password"
+                              data-confirm-style="btn-brand">
+                            @csrf
+                            <button type="submit" class="dropdown-item">
+                                <i class="bi bi-shield-lock me-2"></i>Change Password
+                            </button>
+                        </form>
+                    @endif
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>

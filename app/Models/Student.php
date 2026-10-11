@@ -12,6 +12,8 @@ class Student extends Model
 {
     use HasFactory;
 
+    public const STATUSES = ['Active', 'Inactive', 'Dropped', 'Unofficially Dropped'];
+
     protected $fillable = [
         'user_id',
         'student_number',
@@ -46,6 +48,52 @@ class Student extends Model
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class);
+    }
+
+    // ---------------- Status ----------------
+
+    public function isActive(): bool
+    {
+        return $this->status === 'Active';
+    }
+
+    /**
+     * What a student who is not Active is told on the account status notice:
+     * a one-line explanation and the steps to fix it.
+     *
+     * @return array{summary: string, steps: string[]}
+     */
+    public function statusNotice(): array
+    {
+        return match ($this->status) {
+            'Inactive' => [
+                'summary' => 'Your student record is currently inactive, so attendance cannot be recorded for you.',
+                'steps'   => [
+                    'Go to the Registrar\'s Office and confirm your enrollment for this term.',
+                    'Settle any pending requirements they tell you about.',
+                    'Once the registrar reactivates your record, log in again.',
+                ],
+            ],
+            'Dropped' => [
+                'summary' => 'You have been officially dropped, so you no longer have access to your classes and attendance.',
+                'steps'   => [
+                    'If you believe this is a mistake, bring your student ID to the Registrar\'s Office.',
+                    'If you want to return, ask the registrar about re-enrollment or re-admission.',
+                ],
+            ],
+            'Unofficially Dropped' => [
+                'summary' => 'You have been marked as unofficially dropped because you stopped attending without filing a drop.',
+                'steps'   => [
+                    'See your instructor or class adviser to explain your absences.',
+                    'Go to the Registrar\'s Office to either be reinstated or file an official drop.',
+                    'Do this as soon as possible so your record can be settled.',
+                ],
+            ],
+            default => [
+                'summary' => 'Your student record is not active.',
+                'steps'   => ['Please contact the Registrar\'s Office.'],
+            ],
+        };
     }
 
     // ---------------- Accessors ----------------

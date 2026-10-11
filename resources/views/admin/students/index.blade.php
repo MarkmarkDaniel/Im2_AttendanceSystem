@@ -48,7 +48,7 @@
             <div class="col-md-2">
                 <select name="status" class="form-select form-select-sm">
                     <option value="">All Statuses</option>
-                    @foreach (['Active', 'Inactive', 'Dropped'] as $state)
+                    @foreach (\App\Models\Student::STATUSES as $state)
                         <option value="{{ $state }}"
                             {{ ($filters['status'] ?? '') === $state ? 'selected' : '' }}>
                             {{ $state }}
@@ -83,8 +83,22 @@
                     <tr>
                         <td class="small">{{ $student->student_number }}</td>
                         <td>
-                            <div class="fw-medium small">{{ $student->formal_name }}</div>
-                            <div class="text-muted" style="font-size: .78rem;">{{ $student->email }}</div>
+                            <div class="d-flex align-items-center gap-2">
+                                @if ($student->user->profileImageUrl())
+                                    <img src="{{ $student->user->profileImageUrl() }}" alt=""
+                                         class="rounded-circle border flex-shrink-0"
+                                         style="width: 34px; height: 34px; object-fit: cover;">
+                                @else
+                                    <div class="rounded-circle border bg-light d-flex align-items-center justify-content-center text-muted flex-shrink-0"
+                                         style="width: 34px; height: 34px;">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+                                @endif
+                                <div>
+                                    <div class="fw-medium small">{{ $student->formal_name }}</div>
+                                    <div class="text-muted" style="font-size: .78rem;">{{ $student->email }}</div>
+                                </div>
+                            </div>
                         </td>
                         <td class="small">{{ $student->department->department_code }}</td>
                         <td class="small">{{ $student->year_level }} &mdash; {{ $student->section }}</td>
@@ -93,6 +107,7 @@
                             <span class="badge bg-{{ match ($student->status) {
                                 'Active'   => 'success',
                                 'Inactive' => 'secondary',
+                                'Unofficially Dropped' => 'warning text-dark',
                                 default    => 'danger',
                             } }}">{{ $student->status }}</span>
                         </td>
