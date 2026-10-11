@@ -66,32 +66,6 @@
         <a href="{{ route('register') }}" class="text-decoration-none fw-medium">Register as a student</a>
     </p>
 
-    {{-- Development helper. Remove this block before real deployment. --}}
-    <div class="border rounded p-3 bg-light">
-        <p class="small fw-medium mb-2">
-            <i class="bi bi-info-circle me-1"></i>Demo accounts (development only)
-        </p>
-        <table class="table table-sm small mb-0">
-            <tbody>
-                <tr>
-                    <td class="ps-0"><span class="badge bg-dark">Admin</span></td>
-                    <td>admin@example.com</td>
-                    <td class="text-muted pe-0">password</td>
-                </tr>
-                <tr>
-                    <td class="ps-0"><span class="badge bg-primary">Instructor</span></td>
-                    <td>instructor@example.com</td>
-                    <td class="text-muted pe-0">password</td>
-                </tr>
-                <tr>
-                    <td class="ps-0"><span class="badge bg-success">Student</span></td>
-                    <td>student@example.com</td>
-                    <td class="text-muted pe-0">password</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
 @endsection
 
 @push('scripts')
