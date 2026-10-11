@@ -50,12 +50,13 @@ services:
         value: sync
 
       # ---------------- Mail ----------------
+      # Brevo relay on port 2525: Render's free plan blocks the usual SMTP ports
       - key: MAIL_MAILER
         value: smtp
       - key: MAIL_HOST
-        value: smtp.gmail.com
+        value: smtp-relay.brevo.com
       - key: MAIL_PORT
-        value: "587"
+        value: "2525"
       - key: MAIL_USERNAME
         sync: false
       - key: MAIL_PASSWORD
