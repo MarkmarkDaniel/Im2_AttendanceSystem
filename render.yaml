@@ -1,0 +1,74 @@
+# Render Blueprint: one Docker web service + one PostgreSQL database.
+# Dashboard -> New -> Blueprint -> pick this repository.
+
+databases:
+  - name: attendance-db
+    plan: free
+    region: singapore
+    databaseName: attendance_monitoring_db
+
+services:
+  - type: web
+    name: attendance-monitoring-system
+    runtime: docker
+    plan: free
+    region: singapore
+    branch: feature/premium-ui-masterlist-status-lock
+    healthCheckPath: /up
+    envVars:
+      # ---------------- Application ----------------
+      - key: APP_NAME
+        value: Online Student Attendance Monitoring System
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_TIMEZONE
+        value: Asia/Manila
+      # Paste the output of: php artisan key:generate --show
+      - key: APP_KEY
+        sync: false
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: warning
+
+      # ---------------- Database ----------------
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_URL
+        fromDatabase:
+          name: attendance-db
+          property: connectionString
+
+      # ---------------- Session / cache / queue ----------------
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: sync
+
+      # ---------------- Mail ----------------
+      - key: MAIL_MAILER
+        value: smtp
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        sync: false
+
+      # ---------------- Attendance rules (config/attendance.php) ----------------
+      - key: ATTENDANCE_LATE_GRACE_MINUTES
+        value: "0"
+      - key: ATTENDANCE_MIN_RATE
+        value: "75"
+      - key: ATTENDANCE_WARNING_COOLDOWN_DAYS
+        value: "7"
+      - key: ATTENDANCE_QR_ROTATE_SECONDS
+        value: "15"

@@ -23,9 +23,9 @@ class ClassController extends Controller
             ->with(['subject', 'instructor'])
             ->when($search, function (Builder $query, $term) {
                 $query->whereHas('subject', function (Builder $q) use ($term) {
-                    $q->where('subject_code', 'like', "%{$term}%")
-                      ->orWhere('subject_name', 'like', "%{$term}%");
-                })->orWhere('section', 'like', "%{$term}%");
+                    $q->whereLike('subject_code', "%{$term}%")
+                      ->orWhereLike('subject_name', "%{$term}%");
+                })->orWhereLike('section', "%{$term}%");
             })
             ->when($instructorId, fn (Builder $q, $v) => $q->where('instructor_id', $v))
             ->when($day, fn (Builder $q, $v) => $q->where('schedule_day', $v))

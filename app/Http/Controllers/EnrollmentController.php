@@ -26,9 +26,9 @@ class EnrollmentController extends Controller
             ->with(['subject', 'instructor'])
             ->when($search, function ($query, $term) {
                 $query->whereHas('subject', fn ($q) =>
-                    $q->where('subject_code', 'like', "%{$term}%")
-                      ->orWhere('subject_name', 'like', "%{$term}%")
-                )->orWhere('section', 'like', "%{$term}%");
+                    $q->whereLike('subject_code', "%{$term}%")
+                      ->orWhereLike('subject_name', "%{$term}%")
+                )->orWhereLike('section', "%{$term}%");
             })
             ->withCount('enrollments')
             ->orderBy('schedule_day')
