@@ -79,7 +79,12 @@
         {{-- ==================== USER MENU ==================== --}}
         <div class="dropdown">
             <button class="btn btn-sm btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown">
-                <i class="bi bi-person-circle fs-6"></i>
+                @if ($user->profileImageUrl())
+                    <img src="{{ $user->profileImageUrl() }}" alt="" class="rounded-circle"
+                         style="width: 22px; height: 22px; object-fit: cover;">
+                @else
+                    <i class="bi bi-person-circle fs-6"></i>
+                @endif
                 <span class="small d-none d-sm-inline">{{ $user->name }}</span>
                 <i class="bi bi-chevron-down small"></i>
             </button>

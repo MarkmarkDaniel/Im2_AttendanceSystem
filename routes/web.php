@@ -7,6 +7,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentMasterlistController;
 use App\Http\Controllers\SubjectController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -46,7 +47,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
 
     Route::get('/register',  [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register'])->name('register.store');
+    // Throttled so the birth date check cannot be guessed by brute force
+    Route::post('/register', [AuthController::class, 'register'])
+        ->middleware('throttle:6,1')
+        ->name('register.store');
 
     Route::get('/forgot-password',  [PasswordResetController::class, 'showRequestForm'])->name('password.request');
     Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
@@ -96,6 +100,13 @@ Route::middleware(['auth', 'role:admin'])
         Route::resource('departments', DepartmentController::class)->except('show');
         Route::resource('subjects',    SubjectController::class)->except('show');
         Route::resource('students',    StudentController::class)->except('show');
+
+        // Official student list that self-registration is checked against
+        Route::get('masterlist',            [StudentMasterlistController::class, 'index'])->name('masterlist.index');
+        Route::post('masterlist',           [StudentMasterlistController::class, 'store'])->name('masterlist.store');
+        Route::post('masterlist/import',    [StudentMasterlistController::class, 'import'])->name('masterlist.import');
+        Route::get('masterlist/template',   [StudentMasterlistController::class, 'template'])->name('masterlist.template');
+        Route::delete('masterlist/{entry}', [StudentMasterlistController::class, 'destroy'])->name('masterlist.destroy');
         Route::resource('instructors', InstructorController::class)->except('show');
         Route::resource('classes',     ClassController::class)->except('show');
 
@@ -205,6 +216,10 @@ Route::middleware('auth')->group(function () {
     // Profile
     Route::get('/profile',           [ProfileController::class, 'show'])->name('profile.show');
     Route::patch('/profile/password',[ProfileController::class, 'updatePassword'])->name('profile.password');
+
+    // Profile image (admins only - enforced in the controller)
+    Route::post('/profile/image',    [ProfileController::class, 'updateImage'])->name('profile.image');
+    Route::delete('/profile/image',  [ProfileController::class, 'destroyImage'])->name('profile.image.destroy');
 
     // Students and instructors change their password through an emailed link
     Route::post('/profile/change-password-link', [PasswordResetController::class, 'sendLinkToSelf'])

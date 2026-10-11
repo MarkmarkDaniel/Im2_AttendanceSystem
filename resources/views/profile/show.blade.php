@@ -13,6 +13,13 @@
         <div class="card">
             <div class="card-header bg-white fw-medium">Account Information</div>
             <div class="card-body">
+                {{-- Students and instructors see the photo the admin uploaded for them --}}
+                @if (! $user->isAdmin() && $user->profileImageUrl())
+                    <img src="{{ $user->profileImageUrl() }}" alt="Profile photo"
+                         class="rounded-circle border mb-3"
+                         style="width: 96px; height: 96px; object-fit: cover;">
+                @endif
+
                 <table class="table table-sm mb-0">
                     <tbody>
                         <tr>
@@ -133,6 +140,68 @@
             </div>
         @endif
 
+        @if ($user->isAdmin())
+            {{-- ==================== PROFILE IMAGE (admins only) ==================== --}}
+            <div class="card mb-3" id="profile-image">
+                <div class="card-header bg-white fw-medium">Profile Image</div>
+                <div class="card-body">
+
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        @if ($user->profileImageUrl())
+                            <img src="{{ $user->profileImageUrl() }}" alt="Profile image" id="profileImagePreview"
+                                 class="rounded-circle border"
+                                 style="width: 84px; height: 84px; object-fit: cover;">
+                        @else
+                            <img src="" alt="Profile image" id="profileImagePreview"
+                                 class="rounded-circle border d-none"
+                                 style="width: 84px; height: 84px; object-fit: cover;">
+                            <div id="profileImagePlaceholder"
+                                 class="rounded-circle border bg-light d-flex align-items-center justify-content-center text-muted"
+                                 style="width: 84px; height: 84px;">
+                                <i class="bi bi-person fs-1"></i>
+                            </div>
+                        @endif
+                        <div class="small text-muted">
+                            {{ $user->profile_image ? 'This image is shown beside your name in the top bar.' : 'No profile image yet.' }}
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{{ route('profile.image') }}" enctype="multipart/form-data" novalidate>
+                        @csrf
+
+                        <div class="mb-3">
+                            <label for="profile_image" class="form-label small">
+                                Insert Profile Image <span class="text-danger">*</span>
+                            </label>
+                            <input type="file"
+                                   class="form-control form-control-sm @error('profile_image') is-invalid @enderror"
+                                   id="profile_image" name="profile_image"
+                                   accept=".jpg,.jpeg,.png,.webp" required>
+                            <div class="form-text">JPG, PNG or WEBP. Maximum of 2 MB.</div>
+                            @error('profile_image')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+
+                        <button type="submit" class="btn btn-brand btn-sm w-100">
+                            <i class="bi bi-upload me-1"></i>{{ $user->profile_image ? 'Replace Profile Image' : 'Insert Profile Image' }}
+                        </button>
+                    </form>
+
+                    @if ($user->profile_image)
+                        <form method="POST" action="{{ route('profile.image.destroy') }}" class="mt-2 mb-0"
+                              data-confirm="Your profile image will be removed."
+                              data-confirm-title="Remove Profile Image">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                                <i class="bi bi-trash me-1"></i>Remove Profile Image
+                            </button>
+                        </form>
+                    @endif
+
+                </div>
+            </div>
+        @endif
+
         <div class="card" id="change-password">
             <div class="card-header bg-white fw-medium">Change Password</div>
             <div class="card-body">
@@ -213,3 +282,22 @@
 </div>
 
 @endsection
+
+@if ($user->isAdmin())
+@push('scripts')
+<script>
+    // Show the chosen profile image before it is uploaded
+    document.getElementById('profile_image').addEventListener('change', function () {
+        const file = this.files[0];
+        if (! file || ! file.type.startsWith('image/')) return;
+
+        const preview     = document.getElementById('profileImagePreview');
+        const placeholder = document.getElementById('profileImagePlaceholder');
+
+        preview.src = URL.createObjectURL(file);
+        preview.classList.remove('d-none');
+        if (placeholder) placeholder.classList.replace('d-flex', 'd-none');
+    });
+</script>
+@endpush
+@endif

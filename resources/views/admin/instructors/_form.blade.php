@@ -28,6 +28,11 @@
         @error('last_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
 
+    {{-- The photo is added once the instructor exists --}}
+    @isset($instructor)
+        @include('partials.profile-photo-field', ['photoUser' => $instructor->user])
+    @endisset
+
     <div class="col-12 mt-4">
         <h2 class="h6 text-uppercase text-muted mb-0">Employment Information</h2>
     </div>

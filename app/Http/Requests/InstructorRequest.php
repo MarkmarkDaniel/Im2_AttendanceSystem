@@ -46,12 +46,17 @@ class InstructorRequest extends FormRequest
                 'confirmed',
                 Password::min(8)->letters()->numbers(),
             ],
+
+            // Only offered on the edit form
+            'profile_image'        => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'remove_profile_image' => ['nullable', 'boolean'],
         ];
     }
 
     public function messages(): array
     {
         return [
+            'profile_image.max'      => 'The profile photo may not be larger than 2 MB.',
             'employee_number.unique' => 'That employee number is already in use.',
             'email.unique'           => 'That email address is already in use.',
         ];

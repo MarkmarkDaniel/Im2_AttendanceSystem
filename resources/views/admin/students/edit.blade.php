@@ -10,7 +10,8 @@
     <div class="col-lg-10">
         <div class="card">
             <div class="card-body p-4">
-                <form method="POST" action="{{ route('admin.students.update', $student) }}" novalidate>
+                <form method="POST" action="{{ route('admin.students.update', $student) }}"
+                      enctype="multipart/form-data" novalidate>
                     @csrf
                     @method('PUT')
                     @include('admin.students._form', ['submitLabel' => 'Save Changes'])

@@ -20,7 +20,7 @@ class StudentController extends Controller
         $search  = $request->query('search');
 
         $students = Student::query()
-            ->with('department')
+            ->with(['department', 'user'])
             ->search($search)
             ->filter($filters)
             ->withCount('enrollments')
@@ -117,6 +117,13 @@ class StudentController extends Controller
             ]);
         });
 
+        // A new upload wins over the "remove" tick box
+        if ($request->hasFile('profile_image')) {
+            $student->user->storeProfileImage($request->file('profile_image'));
+        } elseif ($request->boolean('remove_profile_image')) {
+            $student->user->removeProfileImage();
+        }
+
         return redirect()->route('admin.students.index')
             ->with('success', 'Student "' . $student->student_number . '" was updated.');
     }
@@ -127,7 +134,7 @@ class StudentController extends Controller
         if ($student->attendances()->exists()) {
             return redirect()->route('admin.students.index')
                 ->with('error', 'Cannot delete "' . $student->student_number
-                    . '" because attendance records exist. Set the status to Inactive or Dropped instead.');
+                    . '" because attendance records exist. Set the status to Inactive, Dropped or Unofficially Dropped instead.');
         }
 
         $number = $student->student_number;

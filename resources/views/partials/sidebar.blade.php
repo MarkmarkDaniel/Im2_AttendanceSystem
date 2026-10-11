@@ -4,11 +4,11 @@
 
 <nav class="sidebar" id="sidebar">
 
-    <div class="brand d-flex align-items-center gap-2">
-        <i class="bi bi-qr-code-scan fs-4"></i>
+    <div class="brand d-flex align-items-center gap-3">
+        <div class="brand-emblem"><i class="bi bi-mortarboard-fill"></i></div>
         <div>
-            <div class="fw-medium" style="font-size: .95rem;">Attendance System</div>
-            <div class="small opacity-75" style="font-size: .75rem;">{{ ucfirst($user->role) }} Panel</div>
+            <div class="brand-name">Attendance System</div>
+            <div class="brand-role">{{ ucfirst($user->role) }} Panel</div>
         </div>
     </div>
 
@@ -29,6 +29,12 @@
                 <a class="nav-link {{ request()->routeIs('admin.students.*') ? 'active' : '' }}"
                    href="{{ route('admin.students.index') }}">
                     <i class="bi bi-people me-2"></i>Students
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.masterlist.*') ? 'active' : '' }}"
+                   href="{{ route('admin.masterlist.index') }}">
+                    <i class="bi bi-card-checklist me-2"></i>Masterlist
                 </a>
             </li>
             <li class="nav-item">

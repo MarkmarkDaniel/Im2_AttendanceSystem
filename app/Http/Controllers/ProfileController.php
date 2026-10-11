@@ -80,4 +80,41 @@ class ProfileController extends Controller
         return redirect()->route('profile.show')
             ->with('success', 'Your password was updated.');
     }
+
+    /**
+     * Upload or replace own profile image. Admins only.
+     */
+    public function updateImage(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        abort_if(! $user->isAdmin(), 403, 'Only administrators can set a profile image.');
+
+        $request->validate([
+            'profile_image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ], [
+            'profile_image.required' => 'Please choose an image to upload.',
+            'profile_image.max'      => 'The profile image may not be larger than 2 MB.',
+        ]);
+
+        $user->storeProfileImage($request->file('profile_image'));
+
+        return redirect()->route('profile.show')
+            ->with('success', 'Your profile image was updated.');
+    }
+
+    /**
+     * Remove own profile image. Admins only.
+     */
+    public function destroyImage(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        abort_if(! $user->isAdmin(), 403, 'Only administrators can set a profile image.');
+
+        $user->removeProfileImage();
+
+        return redirect()->route('profile.show')
+            ->with('success', 'Your profile image was removed.');
+    }
 }

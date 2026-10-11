@@ -94,6 +94,7 @@ CREATE TABLE users (
     email_verified_at TIMESTAMP       NULL DEFAULT NULL,
     password          VARCHAR(255)    NOT NULL,
     role              ENUM('admin', 'instructor', 'student') NOT NULL DEFAULT 'student',
+    profile_image     VARCHAR(255)    NULL DEFAULT NULL,
     remember_token    VARCHAR(100)    NULL DEFAULT NULL,
     created_at        TIMESTAMP       NULL DEFAULT NULL,
     updated_at        TIMESTAMP       NULL DEFAULT NULL,
@@ -144,7 +145,7 @@ CREATE TABLE students (
     department_id  BIGINT UNSIGNED NOT NULL,
     year_level     ENUM('1st Year', '2nd Year', '3rd Year', '4th Year') NOT NULL,
     section        VARCHAR(20)     NOT NULL,
-    status         ENUM('Active', 'Inactive', 'Dropped') NOT NULL DEFAULT 'Active',
+    status         ENUM('Active', 'Inactive', 'Dropped', 'Unofficially Dropped') NOT NULL DEFAULT 'Active',
     created_at     TIMESTAMP       NULL DEFAULT NULL,
     updated_at     TIMESTAMP       NULL DEFAULT NULL,
 
@@ -160,6 +161,39 @@ CREATE TABLE students (
         ON DELETE CASCADE,
 
     CONSTRAINT students_department_id_foreign
+        FOREIGN KEY (department_id) REFERENCES departments (id)
+        ON DELETE RESTRICT
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+
+-- ============================================================================
+-- 2.3.1 - TABLE: student_masterlist
+-- ----------------------------------------------------------------------------
+-- Official list of enrolled students, encoded by the admin. A student can
+-- only self-register when the student number, last name and birth date
+-- typed on the registration form match a row here. A row counts as
+-- "registered" once a students row with the same student_number exists.
+-- ============================================================================
+
+CREATE TABLE student_masterlist (
+    id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    student_number VARCHAR(30)     NOT NULL,
+    first_name     VARCHAR(100)    NOT NULL,
+    middle_name    VARCHAR(100)    NULL DEFAULT NULL,
+    last_name      VARCHAR(100)    NOT NULL,
+    birth_date     DATE            NOT NULL,
+    department_id  BIGINT UNSIGNED NOT NULL,
+    year_level     ENUM('1st Year', '2nd Year', '3rd Year', '4th Year') NOT NULL,
+    section        VARCHAR(20)     NOT NULL,
+    created_at     TIMESTAMP       NULL DEFAULT NULL,
+    updated_at     TIMESTAMP       NULL DEFAULT NULL,
+
+    PRIMARY KEY (id),
+    UNIQUE KEY student_masterlist_student_number_unique (student_number),
+    KEY student_masterlist_last_name_index (last_name),
+    KEY student_masterlist_department_id_foreign (department_id),
+
+    CONSTRAINT student_masterlist_department_id_foreign
         FOREIGN KEY (department_id) REFERENCES departments (id)
         ON DELETE RESTRICT
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;

@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class RegisterRequest extends FormRequest
@@ -16,14 +15,12 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name'  => ['required', 'string', 'max:100'],
-            'middle_name' => ['nullable', 'string', 'max:100'],
-            'last_name'   => ['required', 'string', 'max:100'],
-
-            'student_number' => [
-                'required', 'string', 'max:30',
-                'unique:students,student_number',
-            ],
+            // Identity check. These three are matched against the student
+            // masterlist in AuthController::register(), not here, so that a
+            // wrong guess never reveals which part was wrong.
+            'student_number' => ['required', 'string', 'max:30'],
+            'last_name'      => ['required', 'string', 'max:100'],
+            'birth_date'     => ['required', 'date', 'before:today'],
 
             'email' => [
                 'required', 'string', 'email', 'max:150',
@@ -32,15 +29,6 @@ class RegisterRequest extends FormRequest
             ],
 
             'phone' => ['nullable', 'string', 'max:30'],
-
-            'department_id' => ['required', 'integer', 'exists:departments,id'],
-
-            'year_level' => [
-                'required',
-                Rule::in(['1st Year', '2nd Year', '3rd Year', '4th Year']),
-            ],
-
-            'section' => ['required', 'string', 'max:20'],
 
             'password' => [
                 'required',
@@ -53,17 +41,9 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'student_number.unique' => 'That student number is already registered.',
-            'email.unique'          => 'That email address is already registered.',
-            'department_id.exists'  => 'Please select a valid department.',
-            'password.confirmed'    => 'The password confirmation does not match.',
-        ];
-    }
-
-    public function attributes(): array
-    {
-        return [
-            'department_id' => 'department',
+            'email.unique'       => 'That email address is already registered.',
+            'birth_date.before'  => 'Please enter your date of birth.',
+            'password.confirmed' => 'The password confirmation does not match.',
         ];
     }
 }

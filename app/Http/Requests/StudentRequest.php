@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Student;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -50,7 +51,7 @@ class StudentRequest extends FormRequest
 
             'status' => [
                 'required',
-                Rule::in(['Active', 'Inactive', 'Dropped']),
+                Rule::in(Student::STATUSES),
             ],
 
             'password' => [
@@ -58,12 +59,17 @@ class StudentRequest extends FormRequest
                 'confirmed',
                 Password::min(8)->letters()->numbers(),
             ],
+
+            // Only offered on the edit form
+            'profile_image'        => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'remove_profile_image' => ['nullable', 'boolean'],
         ];
     }
 
     public function messages(): array
     {
         return [
+            'profile_image.max'     => 'The profile photo may not be larger than 2 MB.',
             'student_number.unique' => 'That student number is already registered.',
             'email.unique'          => 'That email address is already in use.',
             'password.confirmed'    => 'The password confirmation does not match.',

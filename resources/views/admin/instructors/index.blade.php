@@ -67,8 +67,22 @@
                     <tr>
                         <td class="small">{{ $instructor->employee_number }}</td>
                         <td>
-                            <div class="fw-medium small">{{ $instructor->full_name }}</div>
-                            <div class="text-muted" style="font-size: .78rem;">{{ $instructor->email }}</div>
+                            <div class="d-flex align-items-center gap-2">
+                                @if ($instructor->user->profileImageUrl())
+                                    <img src="{{ $instructor->user->profileImageUrl() }}" alt=""
+                                         class="rounded-circle border flex-shrink-0"
+                                         style="width: 34px; height: 34px; object-fit: cover;">
+                                @else
+                                    <div class="rounded-circle border bg-light d-flex align-items-center justify-content-center text-muted flex-shrink-0"
+                                         style="width: 34px; height: 34px;">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+                                @endif
+                                <div>
+                                    <div class="fw-medium small">{{ $instructor->full_name }}</div>
+                                    <div class="text-muted" style="font-size: .78rem;">{{ $instructor->email }}</div>
+                                </div>
+                            </div>
                         </td>
                         <td class="small">{{ $instructor->department->department_code }}</td>
                         <td class="text-center">{{ $instructor->classes_count }}</td>
