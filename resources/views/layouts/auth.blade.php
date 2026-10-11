@@ -48,7 +48,7 @@
                 0 12px 24px -12px rgba(6, 18, 34, .4),
                 inset 0 1px 0 rgba(255, 255, 255, .35);
         }
-        .auth-card .card-body { padding: 1.75rem 2rem 2rem !important; color: #fff; }
+        .auth-card .card-body { padding: 2.5rem 2rem 2.75rem !important; color: #fff; }
         .auth-card .bg-light {
             background: rgba(255, 255, 255, .08) !important;
             border-color: rgba(255, 255, 255, .25) !important;
@@ -176,7 +176,7 @@
         .btn-brand:active { color: #fff; transform: translateY(0); }
 
         @media (max-width: 575.98px) {
-            .auth-card .card-body { padding: 1.5rem 1.25rem 1.5rem !important; }
+            .auth-card .card-body { padding: 2rem 1.25rem 2.25rem !important; }
             .auth-title { font-size: 1.2rem; }
         }
     </style>
