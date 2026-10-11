@@ -52,10 +52,10 @@ class Instructor extends Model
         }
 
         return $query->where(function (Builder $q) use ($term) {
-            $q->where('first_name', 'like', "%{$term}%")
-              ->orWhere('last_name', 'like', "%{$term}%")
-              ->orWhere('employee_number', 'like', "%{$term}%")
-              ->orWhere('email', 'like', "%{$term}%");
+            $q->whereLike('first_name', "%{$term}%")
+              ->orWhereLike('last_name', "%{$term}%")
+              ->orWhereLike('employee_number', "%{$term}%")
+              ->orWhereLike('email', "%{$term}%");
         });
     }
 }
