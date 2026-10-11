@@ -154,13 +154,13 @@
 
 @push('scripts')
 <script>
-    const deptRows = @json($rows->map(fn ($r) => [
+    const deptRows = {{ Js::from($rows->map(fn ($r) => [
         'label'   => $r->department_code,
         'rate'    => (float) $r->attendance_rate,
         'present' => (int) $r->present_count,
         'late'    => (int) $r->late_count,
         'absent'  => (int) $r->absent_count,
-    ])->values());
+    ])->values()) }};
 
     // ---------- Bar: rate per department ----------
     const rateCanvas = document.getElementById('deptRateChart');

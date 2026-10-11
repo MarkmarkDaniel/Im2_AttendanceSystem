@@ -44,8 +44,8 @@ class Subject extends Model
         }
 
         return $query->where(function (Builder $q) use ($term) {
-            $q->where('subject_code', 'like', "%{$term}%")
-              ->orWhere('subject_name', 'like', "%{$term}%");
+            $q->whereLike('subject_code', "%{$term}%")
+              ->orWhereLike('subject_name', "%{$term}%");
         });
     }
 }

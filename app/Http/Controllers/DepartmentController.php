@@ -17,8 +17,8 @@ class DepartmentController extends Controller
         $departments = Department::query()
             ->when($search, function ($query, $term) {
                 $query->where(function ($q) use ($term) {
-                    $q->where('department_code', 'like', "%{$term}%")
-                      ->orWhere('department_name', 'like', "%{$term}%");
+                    $q->whereLike('department_code', "%{$term}%")
+                      ->orWhereLike('department_name', "%{$term}%");
                 });
             })
             ->withCount(['students', 'instructors', 'subjects'])

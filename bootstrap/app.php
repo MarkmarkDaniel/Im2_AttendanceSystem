@@ -11,6 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // The host's load balancer terminates HTTPS; trust it so URLs and client IPs are correct
+        $middleware->trustProxies(at: '*');
+
         // Custom role middleware alias
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
