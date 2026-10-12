@@ -31,6 +31,8 @@
         }
         body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; }
         .auth-footer { color: rgba(255, 255, 255, .85); letter-spacing: .02em; }
+        /* Keeps the single-column forms (login, forgot password) from stretching too wide */
+        .auth-col-narrow { max-width: 450px; }
 
         /* ---------- Card: frosted glass over the background photo ---------- */
         .auth-card {
@@ -185,7 +187,7 @@
 
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-12 @yield('column-width', 'col-md-6 col-lg-5')">
+            <div class="col-12 @yield('column-width', 'col-md-6 col-lg-5 auth-col-narrow')">
 
                 <div class="card auth-card">
                     <div class="auth-header text-center">
